@@ -15,6 +15,7 @@ class ImageKitConf(AppConf):
     CACHE_BACKEND = None
     CACHE_PREFIX = 'imagekit:'
     CACHE_TIMEOUT = None
+    CACHE_TIMEOUT_GENERATING = None
     USE_MEMCACHED_SAFE_CACHE_KEY = True
 
     def configure_cache_backend(self, value):

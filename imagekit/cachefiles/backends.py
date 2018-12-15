@@ -74,6 +74,8 @@ class CachedFileBackend(object):
         key = self.get_key(file)
         if state == CacheFileState.DOES_NOT_EXIST:
             self.cache.set(key, state, self.existence_check_timeout)
+        elif state == CacheFileState.GENERATING:
+            self.cache.set(key, state, settings.IMAGEKIT_CACHE_TIMEOUT_GENERATING)
         else:
             self.cache.set(key, state, settings.IMAGEKIT_CACHE_TIMEOUT)
 
