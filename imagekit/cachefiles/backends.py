@@ -142,7 +142,7 @@ class BaseAsync(Simple):
 
 
 try:
-    from celery import task
+    from celery import shared_task as task
 except ImportError:
     pass
 else:
