@@ -12,7 +12,7 @@ from .utils import clear_imagekit_cache, create_photo, get_unique_image_file, pi
 
 def test_imagespecfield():
     clear_imagekit_cache()
-    instance = create_photo('pickletest2.jpg')
+    instance = create_photo("pickletest2.jpg")
     thumbnail = pickleback(instance.thumbnail)
     thumbnail.generate()
 
@@ -25,7 +25,7 @@ def test_circular_ref():
 
     """
     clear_imagekit_cache()
-    instance = create_photo('pickletest3.jpg')
+    instance = create_photo("pickletest3.jpg")
     instance.thumbnail  # Cause thumbnail to be added to instance's __dict__
     pickleback(instance)
 

@@ -7,34 +7,40 @@ from imagekit.processors import Adjust, ResizeToFill, SmartCrop
 
 class Thumbnail(ImageSpec):
     processors = [ResizeToFill(100, 60)]
-    format = 'JPEG'
-    options = {'quality': 60}
+    format = "JPEG"
+    options = {"quality": 60}
 
 
 class ImageModel(models.Model):
-    image = models.ImageField(upload_to='b')
+    image = models.ImageField(upload_to="b")
 
 
 class Photo(models.Model):
-    original_image = models.ImageField(upload_to='photos')
+    original_image = models.ImageField(upload_to="photos")
 
     # Implicit source field
-    thumbnail = ImageSpecField([Adjust(contrast=1.2, sharpness=1.1),
-                               ResizeToFill(50, 50)], format='JPEG',
-                               options={'quality': 90})
+    thumbnail = ImageSpecField(
+        [Adjust(contrast=1.2, sharpness=1.1), ResizeToFill(50, 50)],
+        format="JPEG",
+        options={"quality": 90},
+    )
 
-    smartcropped_thumbnail = ImageSpecField([Adjust(contrast=1.2,
-            sharpness=1.1), SmartCrop(50, 50)], source='original_image',
-            format='JPEG', options={'quality': 90})
+    smartcropped_thumbnail = ImageSpecField(
+        [Adjust(contrast=1.2, sharpness=1.1), SmartCrop(50, 50)],
+        source="original_image",
+        format="JPEG",
+        options={"quality": 90},
+    )
 
 
 class ProcessedImageFieldModel(models.Model):
-    processed = ProcessedImageField([SmartCrop(50, 50)], format='JPEG',
-            options={'quality': 90}, upload_to='p')
+    processed = ProcessedImageField(
+        [SmartCrop(50, 50)], format="JPEG", options={"quality": 90}, upload_to="p"
+    )
 
 
 class ProcessedImageFieldWithSpecModel(models.Model):
-    processed = ProcessedImageField(spec=Thumbnail, upload_to='p')
+    processed = ProcessedImageField(spec=Thumbnail, upload_to="p")
 
 
 class CountingCacheFileStrategy:
@@ -54,10 +60,12 @@ class CountingCacheFileStrategy:
 
 
 class AbstractImageModel(models.Model):
-    original_image = models.ImageField(upload_to='photos')
-    abstract_class_spec = ImageSpecField(source='original_image',
-                                         format='JPEG',
-                                         cachefile_strategy=CountingCacheFileStrategy())
+    original_image = models.ImageField(upload_to="photos")
+    abstract_class_spec = ImageSpecField(
+        source="original_image",
+        format="JPEG",
+        cachefile_strategy=CountingCacheFileStrategy(),
+    )
 
     class Meta:
         abstract = True

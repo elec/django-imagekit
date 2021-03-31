@@ -69,7 +69,7 @@ def token_kwargs(bits, parser, support_legacy=False):
     if not kwarg_format:
         if not support_legacy:
             return {}
-        if len(bits) < 3 or bits[1] != 'as':
+        if len(bits) < 3 or bits[1] != "as":
             return {}
 
     kwargs = {}
@@ -81,32 +81,32 @@ def token_kwargs(bits, parser, support_legacy=False):
             key, value = match.groups()
             del bits[:1]
         else:
-            if len(bits) < 3 or bits[1] != 'as':
+            if len(bits) < 3 or bits[1] != "as":
                 return kwargs
             key, value = bits[2], bits[0]
             del bits[:3]
         kwargs[key] = parser.compile_filter(value)
         if bits and not kwarg_format:
-            if bits[0] != 'and':
+            if bits[0] != "and":
                 return kwargs
             del bits[:1]
     return kwargs
 
 
-def parse_bits(parser, bits, params, varargs, varkw, defaults,
-               takes_context, name):
+def parse_bits(parser, bits, params, varargs, varkw, defaults, takes_context, name):
     """
     Parses bits for template tag helpers (simple_tag, include_tag and
     assignment_tag), in particular by detecting syntax errors and by
     extracting positional and keyword arguments.
     """
     if takes_context:
-        if params[0] == 'context':
+        if params[0] == "context":
             params = params[1:]
         else:
             raise TemplateSyntaxError(
                 "'%s' is decorated with takes_context=True so it must "
-                "have a first argument of 'context'" % name)
+                "have a first argument of 'context'" % name
+            )
     args = []
     kwargs = {}
     unhandled_params = list(params)
@@ -119,13 +119,14 @@ def parse_bits(parser, bits, params, varargs, varkw, defaults,
             if param not in params and varkw is None:
                 # An unexpected keyword argument was supplied
                 raise TemplateSyntaxError(
-                    "'%s' received unexpected keyword argument '%s'" %
-                    (name, param))
+                    f"'{name}' received unexpected keyword argument '{param}'"
+                )
             elif param in kwargs:
                 # The keyword argument has already been supplied once
                 raise TemplateSyntaxError(
-                    "'%s' received multiple values for keyword argument '%s'" %
-                    (name, param))
+                    "'%s' received multiple values for keyword argument '%s'"
+                    % (name, param)
+                )
             else:
                 # All good, record the keyword argument
                 kwargs[str(param)] = value
@@ -137,7 +138,8 @@ def parse_bits(parser, bits, params, varargs, varkw, defaults,
             if kwargs:
                 raise TemplateSyntaxError(
                     "'%s' received some positional argument(s) after some "
-                    "keyword argument(s)" % name)
+                    "keyword argument(s)" % name
+                )
             else:
                 # Record the positional argument
                 args.append(parser.compile_filter(bit))
@@ -147,15 +149,16 @@ def parse_bits(parser, bits, params, varargs, varkw, defaults,
                 except IndexError:
                     if varargs is None:
                         raise TemplateSyntaxError(
-                            "'%s' received too many positional arguments" %
-                            name)
+                            "'%s' received too many positional arguments" % name
+                        )
     if defaults is not None:
         # Consider the last n params handled, where n is the
         # number of defaults.
-        unhandled_params = unhandled_params[:-len(defaults)]
+        unhandled_params = unhandled_params[: -len(defaults)]
     if unhandled_params:
         # Some positional arguments were not supplied
         raise TemplateSyntaxError(
-            "'%s' did not receive value(s) for the argument(s): %s" %
-            (name, ", ".join(["'%s'" % p for p in unhandled_params])))
+            "'%s' did not receive value(s) for the argument(s): %s"
+            % (name, ", ".join(["'%s'" % p for p in unhandled_params]))
+        )
     return args, kwargs

@@ -15,4 +15,6 @@ except ImportError:
         import ImageFilter
         import ImageStat
     except ImportError:
-        raise ImportError('ImageKit was unable to import the Python Imaging Library. Please confirm it`s installed and available on your current Python path.')
+        raise ImportError(
+            "ImageKit was unable to import the Python Imaging Library. Please confirm it`s installed and available on your current Python path."
+        )

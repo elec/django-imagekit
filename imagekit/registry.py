@@ -10,6 +10,7 @@ class GeneratorRegistry:
     without locking the users of the app into it.
 
     """
+
     def __init__(self):
         self._generators = {}
         content_required.connect(self.content_required_receiver)
@@ -18,16 +19,16 @@ class GeneratorRegistry:
     def register(self, id, generator):
         registered_generator = self._generators.get(id)
         if registered_generator and generator != self._generators[id]:
-            raise AlreadyRegistered('The generator with id %s is'
-                                    ' already registered' % id)
+            raise AlreadyRegistered(
+                "The generator with id %s is" " already registered" % id
+            )
         self._generators[id] = generator
 
     def unregister(self, id):
         try:
             del self._generators[id]
         except KeyError:
-            raise NotRegistered('The generator with id %s is not'
-                                ' registered' % id)
+            raise NotRegistered("The generator with id %s is not" " registered" % id)
 
     def get(self, id, **kwargs):
         autodiscover()
@@ -35,8 +36,7 @@ class GeneratorRegistry:
         try:
             generator = self._generators[id]
         except KeyError:
-            raise NotRegistered('The generator with id %s is not'
-                                ' registered' % id)
+            raise NotRegistered("The generator with id %s is not" " registered" % id)
         if callable(generator):
             return generator(**kwargs)
         else:
@@ -47,10 +47,10 @@ class GeneratorRegistry:
         return list(self._generators.keys())
 
     def content_required_receiver(self, sender, file, **kwargs):
-        self._receive(file, 'on_content_required')
+        self._receive(file, "on_content_required")
 
     def existence_required_receiver(self, sender, file, **kwargs):
-        self._receive(file, 'on_existence_required')
+        self._receive(file, "on_existence_required")
 
     def _receive(self, file, callback):
         generator = file.generator
@@ -71,8 +71,9 @@ class SourceGroupRegistry:
     files with that registry.
 
     """
+
     _signals = {
-        source_saved: 'on_source_saved',
+        source_saved: "on_source_saved",
     }
 
     def __init__(self):
@@ -82,18 +83,22 @@ class SourceGroupRegistry:
 
     def register(self, generator_id, source_group):
         from .specs.sourcegroups import SourceGroupFilesGenerator
+
         generator_ids = self._source_groups.setdefault(source_group, set())
         generator_ids.add(generator_id)
-        cachefile_registry.register(generator_id,
-                SourceGroupFilesGenerator(source_group, generator_id))
+        cachefile_registry.register(
+            generator_id, SourceGroupFilesGenerator(source_group, generator_id)
+        )
 
     def unregister(self, generator_id, source_group):
         from .specs.sourcegroups import SourceGroupFilesGenerator
+
         generator_ids = self._source_groups.setdefault(source_group, set())
         if generator_id in generator_ids:
             generator_ids.remove(generator_id)
-            cachefile_registry.unregister(generator_id,
-                    SourceGroupFilesGenerator(source_group, generator_id))
+            cachefile_registry.unregister(
+                generator_id, SourceGroupFilesGenerator(source_group, generator_id)
+            )
 
     def source_group_receiver(self, sender, source, signal, **kwargs):
         """
@@ -101,14 +106,17 @@ class SourceGroupRegistry:
 
         """
         from .cachefiles import ImageCacheFile
+
         source_group = sender
 
         # Ignore signals from unregistered groups.
         if source_group not in self._source_groups:
             return
 
-        specs = [generator_registry.get(id, source=source) for id in
-                self._source_groups[source_group]]
+        specs = [
+            generator_registry.get(id, source=source)
+            for id in self._source_groups[source_group]
+        ]
         callback_name = self._signals[signal]
 
         for spec in specs:
@@ -160,12 +168,14 @@ class Register:
     Register generators and generated files.
 
     """
+
     def generator(self, id, generator=None):
         if generator is None:
             # Return a decorator
             def decorator(cls):
                 self.generator(id, cls)
                 return cls
+
             return decorator
 
         generator_registry.register(id, generator)
@@ -183,6 +193,7 @@ class Unregister:
     Unregister generators and generated files.
 
     """
+
     def generator(self, id):
         generator_registry.unregister(id)
 

@@ -15,7 +15,7 @@ class ImageGenerator:
         return create_image()
 
     def get_hash(self):
-        return 'abc123'
+        return "abc123"
 
 
 def get_image_cache_file():
@@ -23,9 +23,12 @@ def get_image_cache_file():
     backend = SimpleCFBackend()
     strategy = OptimisticStrategy()
     generator = ImageGenerator()
-    return ImageCacheFile(generator, storage=storage,
-                          cachefile_backend=backend,
-                          cachefile_strategy=strategy)
+    return ImageCacheFile(
+        generator,
+        storage=storage,
+        cachefile_backend=backend,
+        cachefile_strategy=strategy,
+    )
 
 
 def test_no_io_on_bool():

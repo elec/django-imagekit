@@ -37,7 +37,7 @@ class DictStrategy:
 
 def load_strategy(strategy):
     if isinstance(strategy, str):
-        strategy = get_singleton(strategy, 'cache file strategy')
+        strategy = get_singleton(strategy, "cache file strategy")
     elif isinstance(strategy, dict):
         strategy = DictStrategy(strategy)
     elif callable(strategy):

@@ -9,17 +9,17 @@ def test_img_tag():
     ttag = r"""{% generateimage 'testspec' source=img %}"""
     clear_imagekit_cache()
     attrs = get_html_attrs(ttag)
-    expected_attrs = {'src', 'width', 'height'}
+    expected_attrs = {"src", "width", "height"}
     eq_(set(attrs.keys()), expected_attrs)
     for k in expected_attrs:
-        assert_not_equal(attrs[k].strip(), '')
+        assert_not_equal(attrs[k].strip(), "")
 
 
 def test_img_tag_attrs():
     ttag = r"""{% generateimage 'testspec' source=img -- alt="Hello" %}"""
     clear_imagekit_cache()
     attrs = get_html_attrs(ttag)
-    eq_(attrs.get('alt'), 'Hello')
+    eq_(attrs.get("alt"), "Hello")
 
 
 @raises(TemplateSyntaxError)
@@ -47,11 +47,11 @@ def test_single_dimension_attr():
     ttag = r"""{% generateimage 'testspec' source=img -- width="50" %}"""
     clear_imagekit_cache()
     attrs = get_html_attrs(ttag)
-    assert_false('height' in attrs)
+    assert_false("height" in attrs)
 
 
 def test_assignment_tag():
     ttag = r"""{% generateimage 'testspec' source=img as th %}{{ th.url }}{{ th.height }}{{ th.width }}"""
     clear_imagekit_cache()
     html = render_tag(ttag)
-    assert_not_equal(html.strip(), '')
+    assert_not_equal(html.strip(), "")

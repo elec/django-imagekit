@@ -26,8 +26,8 @@ def get_image_file():
     https://lintian.debian.org/tags/license-problem-non-free-img-lenna.html
     https://github.com/libav/libav/commit/8895bf7b78650c0c21c88cec0484e138ec511a4b
     """
-    path = os.path.join(settings.MEDIA_ROOT, 'reference.png')
-    return open(path, 'r+b')
+    path = os.path.join(settings.MEDIA_ROOT, "reference.png")
+    return open(path, "r+b")
 
 
 def get_unique_image_file():
@@ -62,8 +62,8 @@ def pickleback(obj):
 
 def render_tag(ttag):
     img = get_image_file()
-    template = Template('{%% load imagekit %%}%s' % ttag)
-    context = Context({'img': img})
+    template = Template("{%% load imagekit %%}%s" % ttag)
+    context = Context({"img": img})
     return template.render(context)
 
 
@@ -72,11 +72,11 @@ def get_html_attrs(ttag):
 
 
 def assert_file_is_falsy(file):
-    assert_false(bool(file), 'File is not falsy')
+    assert_false(bool(file), "File is not falsy")
 
 
 def assert_file_is_truthy(file):
-    assert_true(bool(file), 'File is not truthy')
+    assert_true(bool(file), "File is not truthy")
 
 
 class DummyAsyncCacheFileBackend(Simple):
@@ -84,6 +84,7 @@ class DummyAsyncCacheFileBackend(Simple):
     A cache file backend meant to simulate async generation.
 
     """
+
     is_async = True
 
     def generate(self, file, force=False):
@@ -102,7 +103,7 @@ def clear_imagekit_cache():
 def clear_imagekit_test_files():
     clear_imagekit_cache()
     for fname in os.listdir(settings.MEDIA_ROOT):
-        if fname != 'reference.png':
+        if fname != "reference.png":
             path = os.path.join(settings.MEDIA_ROOT, fname)
             if os.path.isdir(path):
                 shutil.rmtree(path)

@@ -26,6 +26,7 @@ def ik_model_receiver(fn):
     have fields that function as ImageFieldSourceGroup sources.
 
     """
+
     @wraps(fn)
     def receiver(self, sender, **kwargs):
         if not inspect.isclass(sender):
@@ -37,6 +38,7 @@ def ik_model_receiver(fn):
                 # If we find a match, return. We don't want to handle the signal
                 # more than once.
                 return
+
     return receiver
 
 
@@ -56,7 +58,7 @@ class ModelSignalRouter:
 
     def __init__(self):
         self._source_groups = []
-        uid = 'ik_spec_field_receivers'
+        uid = "ik_spec_field_receivers"
         post_init.connect(self.post_init_receiver, dispatch_uid=uid)
         post_save.connect(self.post_save_receiver, dispatch_uid=uid)
 
@@ -64,7 +66,7 @@ class ModelSignalRouter:
         self._source_groups.append(source_group)
 
     def init_instance(self, instance):
-        instance._ik = getattr(instance, '_ik', {})
+        instance._ik = getattr(instance, "_ik", {})
 
     def update_source_hashes(self, instance):
         """
@@ -74,25 +76,36 @@ class ModelSignalRouter:
 
         """
         self.init_instance(instance)
-        instance._ik['source_hashes'] = {
+        instance._ik["source_hashes"] = {
             attname: hash(getattr(instance, attname))
-            for attname in self.get_source_fields(instance)}
-        return instance._ik['source_hashes']
+            for attname in self.get_source_fields(instance)
+        }
+        return instance._ik["source_hashes"]
 
     def get_source_fields(self, instance):
         """
         Returns a list of the source fields for the given instance.
 
         """
-        return {src.image_field
-                   for src in self._source_groups
-                   if isinstance(instance, src.model_class)}
+        return {
+            src.image_field
+            for src in self._source_groups
+            if isinstance(instance, src.model_class)
+        }
 
     @ik_model_receiver
-    def post_save_receiver(self, sender, instance=None, created=False, update_fields=None, raw=False, **kwargs):
+    def post_save_receiver(
+        self,
+        sender,
+        instance=None,
+        created=False,
+        update_fields=None,
+        raw=False,
+        **kwargs
+    ):
         if not raw:
             self.init_instance(instance)
-            old_hashes = instance._ik.get('source_hashes', {}).copy()
+            old_hashes = instance._ik.get("source_hashes", {}).copy()
             new_hashes = self.update_source_hashes(instance)
             for attname in self.get_source_fields(instance):
                 if update_fields and attname not in update_fields:
@@ -100,19 +113,21 @@ class ModelSignalRouter:
 
                 file = getattr(instance, attname)
                 if file and old_hashes.get(attname) != new_hashes[attname]:
-                    self.dispatch_signal(source_saved, file, sender, instance,
-                                         attname)
+                    self.dispatch_signal(source_saved, file, sender, instance, attname)
 
     @ik_model_receiver
     def post_init_receiver(self, sender, instance=None, **kwargs):
         self.init_instance(instance)
         source_fields = self.get_source_fields(instance)
-        local_fields = {field.name: field
-                            for field in instance._meta.local_fields
-                            if field.name in source_fields}
-        instance._ik['source_hashes'] = {
+        local_fields = {
+            field.name: field
+            for field in instance._meta.local_fields
+            if field.name in source_fields
+        }
+        instance._ik["source_hashes"] = {
             attname: hash(file_field)
-            for attname, file_field in list(local_fields.items())}
+            for attname, file_field in list(local_fields.items())
+        }
 
     def dispatch_signal(self, signal, file, model_class, instance, attname):
         """
@@ -122,7 +137,10 @@ class ModelSignalRouter:
 
         """
         for source_group in self._source_groups:
-            if issubclass(model_class, source_group.model_class) and source_group.image_field == attname:
+            if (
+                issubclass(model_class, source_group.model_class)
+                and source_group.image_field == attname
+            ):
                 signal.send(sender=source_group, source=file)
 
 
@@ -132,6 +150,7 @@ class ImageFieldSourceGroup:
     model and its subclasses.
 
     """
+
     def __init__(self, model_class, image_field):
         self.model_class = model_class
         self.image_field = image_field
@@ -154,13 +173,13 @@ class SourceGroupFilesGenerator:
     A Python generator that yields cache file objects for source groups.
 
     """
+
     def __init__(self, source_group, generator_id):
         self.source_group = source_group
         self.generator_id = generator_id
 
     def __eq__(self, other):
-        return (isinstance(other, self.__class__)
-            and self.__dict__ == other.__dict__)
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -170,8 +189,7 @@ class SourceGroupFilesGenerator:
 
     def __call__(self):
         for source_file in self.source_group.files():
-            yield LazyImageCacheFile(self.generator_id,
-                                              source=source_file)
+            yield LazyImageCacheFile(self.generator_id, source=source_file)
 
 
 signal_router = ModelSignalRouter()

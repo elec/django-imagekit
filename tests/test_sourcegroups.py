@@ -12,6 +12,7 @@ def make_counting_receiver(source_group):
     def receiver(sender, *args, **kwargs):
         if sender is source_group:
             receiver.count += 1
+
     receiver.count = 0
     return receiver
 
@@ -22,7 +23,7 @@ def test_source_saved_signal():
     dispatched.
 
     """
-    source_group = ImageFieldSourceGroup(ImageModel, 'image')
+    source_group = ImageFieldSourceGroup(ImageModel, "image")
     receiver = make_counting_receiver(source_group)
     source_saved.connect(receiver)
     ImageModel.objects.create(image=File(get_image_file()))
@@ -37,7 +38,7 @@ def test_no_source_saved_signal():
     https://github.com/matthewwithanm/django-imagekit/issues/214
 
     """
-    source_group = ImageFieldSourceGroup(ImageModel, 'image')
+    source_group = ImageFieldSourceGroup(ImageModel, "image")
     receiver = make_counting_receiver(source_group)
     source_saved.connect(receiver)
     ImageModel.objects.create()
@@ -50,7 +51,7 @@ def test_abstract_model_signals():
     dispatched on their concrete subclasses.
 
     """
-    source_group = ImageFieldSourceGroup(AbstractImageModel, 'original_image')
+    source_group = ImageFieldSourceGroup(AbstractImageModel, "original_image")
     receiver = make_counting_receiver(source_group)
     source_saved.connect(receiver)
     ConcreteImageModel.objects.create(original_image=File(get_image_file()))

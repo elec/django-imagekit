@@ -68,15 +68,12 @@ def test_repr_does_not_send_existence_required():
     recursion
 
     """
-    with mock.patch('imagekit.cachefiles.existence_required') as signal:
+    with mock.patch("imagekit.cachefiles.existence_required") as signal:
         # import here to apply mock
         from imagekit.cachefiles import ImageCacheFile
 
         spec = TestSpec(source=get_unique_image_file())
-        file = ImageCacheFile(
-            spec,
-            cachefile_backend=DummyAsyncCacheFileBackend()
-        )
+        file = ImageCacheFile(spec, cachefile_backend=DummyAsyncCacheFileBackend())
         file.__repr__()
         eq_(signal.send.called, False)
 
@@ -93,30 +90,38 @@ def test_memcached_cache_key():
             self.name = name
 
     backend = Simple()
-    extra_char_count = len('state-') + len(settings.IMAGEKIT_CACHE_PREFIX)
+    extra_char_count = len("state-") + len(settings.IMAGEKIT_CACHE_PREFIX)
 
     length = 199 - extra_char_count
-    filename = '1' * length
+    filename = "1" * length
     file = MockFile(filename)
-    eq_(backend.get_key(file), '%s%s-state' %
-        (settings.IMAGEKIT_CACHE_PREFIX, file.name))
+    eq_(
+        backend.get_key(file),
+        f"{settings.IMAGEKIT_CACHE_PREFIX}{file.name}-state",
+    )
 
     length = 200 - extra_char_count
-    filename = '1' * length
+    filename = "1" * length
     file = MockFile(filename)
-    eq_(backend.get_key(file), '{}{}:{}'.format(
-        settings.IMAGEKIT_CACHE_PREFIX,
-        '1' * (200 - len(':') - 32 - len(settings.IMAGEKIT_CACHE_PREFIX)),
-        md5(force_bytes(f'{settings.IMAGEKIT_CACHE_PREFIX}{filename}-state')).hexdigest()))
+    eq_(
+        backend.get_key(file),
+        "{}{}:{}".format(
+            settings.IMAGEKIT_CACHE_PREFIX,
+            "1" * (200 - len(":") - 32 - len(settings.IMAGEKIT_CACHE_PREFIX)),
+            md5(
+                force_bytes(f"{settings.IMAGEKIT_CACHE_PREFIX}{filename}-state")
+            ).hexdigest(),
+        ),
+    )
 
 
 def test_lazyfile_stringification():
-    file = LazyImageCacheFile('testspec', source=None)
-    eq_(str(file), '')
-    eq_(repr(file), '<ImageCacheFile: None>')
+    file = LazyImageCacheFile("testspec", source=None)
+    eq_(str(file), "")
+    eq_(repr(file), "<ImageCacheFile: None>")
 
     source_file = get_image_file()
-    file = LazyImageCacheFile('testspec', source=source_file)
-    file.name = 'a.jpg'
-    eq_(str(file), 'a.jpg')
-    eq_(repr(file), '<ImageCacheFile: a.jpg>')
+    file = LazyImageCacheFile("testspec", source=source_file)
+    file.name = "a.jpg"
+    eq_(str(file), "a.jpg")
+    eq_(repr(file), "<ImageCacheFile: a.jpg>")

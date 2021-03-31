@@ -9,17 +9,17 @@ def test_img_tag():
     ttag = r"""{% thumbnail '100x100' img %}"""
     clear_imagekit_cache()
     attrs = get_html_attrs(ttag)
-    expected_attrs = {'src', 'width', 'height'}
+    expected_attrs = {"src", "width", "height"}
     eq_(set(attrs.keys()), expected_attrs)
     for k in expected_attrs:
-        assert_not_equal(attrs[k].strip(), '')
+        assert_not_equal(attrs[k].strip(), "")
 
 
 def test_img_tag_attrs():
     ttag = r"""{% thumbnail '100x100' img -- alt="Hello" %}"""
     clear_imagekit_cache()
     attrs = get_html_attrs(ttag)
-    eq_(attrs.get('alt'), 'Hello')
+    eq_(attrs.get("alt"), "Hello")
 
 
 @raises(TemplateSyntaxError)
@@ -55,18 +55,18 @@ def test_assignment_tag():
     ttag = r"""{% thumbnail '100x100' img as th %}{{ th.url }}"""
     clear_imagekit_cache()
     html = render_tag(ttag)
-    assert_not_equal(html, '')
+    assert_not_equal(html, "")
 
 
 def test_single_dimension():
     ttag = r"""{% thumbnail '100x' img as th %}{{ th.width }}"""
     clear_imagekit_cache()
     html = render_tag(ttag)
-    eq_(html, '100')
+    eq_(html, "100")
 
 
 def test_alternate_generator():
     ttag = r"""{% thumbnail '1pxsq' '100x' img as th %}{{ th.width }}"""
     clear_imagekit_cache()
     html = render_tag(ttag)
-    eq_(html, '1')
+    eq_(html, "1")

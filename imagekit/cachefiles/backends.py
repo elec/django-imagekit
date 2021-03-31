@@ -8,9 +8,9 @@ from ..utils import get_cache, get_singleton, sanitize_cache_key
 
 
 class CacheFileState:
-    EXISTS = 'exists'
-    GENERATING = 'generating'
-    DOES_NOT_EXIST = 'does_not_exist'
+    EXISTS = "exists"
+    GENERATING = "generating"
+    DOES_NOT_EXIST = "does_not_exist"
 
 
 def get_default_cachefile_backend():
@@ -19,8 +19,8 @@ def get_default_cachefile_backend():
 
     """
     from django.conf import settings
-    return get_singleton(settings.IMAGEKIT_DEFAULT_CACHEFILE_BACKEND,
-                         'file backend')
+
+    return get_singleton(settings.IMAGEKIT_DEFAULT_CACHEFILE_BACKEND, "file backend")
 
 
 class InvalidFileBackendError(ImproperlyConfigured):
@@ -34,6 +34,7 @@ class AbstractCacheFileBackend:
     backend for users who wish to implement their own.
 
     """
+
     def generate(self, file, force=False):
         raise NotImplementedError
 
@@ -54,14 +55,14 @@ class CachedFileBackend:
 
     @property
     def cache(self):
-        if not getattr(self, '_cache', None):
+        if not getattr(self, "_cache", None):
             self._cache = get_cache()
         return self._cache
 
     def get_key(self, file):
         from django.conf import settings
-        return sanitize_cache_key('%s%s-state' %
-                                  (settings.IMAGEKIT_CACHE_PREFIX, file.name))
+
+        return sanitize_cache_key(f"{settings.IMAGEKIT_CACHE_PREFIX}{file.name}-state")
 
     def get_state(self, file, check_if_unknown=True):
         key = self.get_key(file)
@@ -85,7 +86,7 @@ class CachedFileBackend:
         state = copy(self.__dict__)
         # Don't include the cache when pickling. It'll be reconstituted based
         # on the settings.
-        state.pop('_cache', None)
+        state.pop("_cache", None)
         return state
 
     def exists(self, file):
@@ -95,7 +96,10 @@ class CachedFileBackend:
         raise NotImplementedError
 
     def generate_now(self, file, force=False):
-        if force or self.get_state(file) not in (CacheFileState.GENERATING, CacheFileState.EXISTS):
+        if force or self.get_state(file) not in (
+            CacheFileState.GENERATING,
+            CacheFileState.EXISTS,
+        ):
             self.set_state(file, CacheFileState.GENERATING)
             file._generate()
             self.set_state(file, CacheFileState.EXISTS)
@@ -113,8 +117,10 @@ class Simple(CachedFileBackend):
         self.generate_now(file, force=force)
 
     def _exists(self, file):
-        return bool(getattr(file, '_file', None)
-                    or (file.name and file.storage.exists(file.name)))
+        return bool(
+            getattr(file, "_file", None)
+            or (file.name and file.storage.exists(file.name))
+        )
 
 
 def _generate_file(backend, file, force=False):
@@ -125,6 +131,7 @@ class BaseAsync(Simple):
     """
     Base class for cache file backends that generate files asynchronously.
     """
+
     is_async = True
 
     def generate(self, file, force=False):
@@ -148,19 +155,21 @@ try:
 except ImportError:
     pass
 else:
-    _celery_task = task(ignore_result=True, serializer='pickle')(_generate_file)
+    _celery_task = task(ignore_result=True, serializer="pickle")(_generate_file)
 
 
 class Celery(BaseAsync):
     """
     A backend that uses Celery to generate the images.
     """
+
     def __init__(self, *args, **kwargs):
         try:
             import celery  # noqa
         except ImportError:
-            raise ImproperlyConfigured('You must install celery to use'
-                                       ' imagekit.cachefiles.backends.Celery.')
+            raise ImproperlyConfigured(
+                "You must install celery to use" " imagekit.cachefiles.backends.Celery."
+            )
         super().__init__(*args, **kwargs)
 
     def schedule_generation(self, file, force=False):
@@ -170,7 +179,7 @@ class Celery(BaseAsync):
 # Stub class to preserve backwards compatibility and issue a warning
 class Async(Celery):
     def __init__(self, *args, **kwargs):
-        message = '{path}.Async is deprecated. Use {path}.Celery instead.'
+        message = "{path}.Async is deprecated. Use {path}.Celery instead."
         warnings.warn(message.format(path=__name__), DeprecationWarning)
         super().__init__(*args, **kwargs)
 
@@ -180,19 +189,21 @@ try:
 except ImportError:
     pass
 else:
-    _rq_job = job('default', result_ttl=0)(_generate_file)
+    _rq_job = job("default", result_ttl=0)(_generate_file)
 
 
 class RQ(BaseAsync):
     """
     A backend that uses RQ to generate the images.
     """
+
     def __init__(self, *args, **kwargs):
         try:
             import django_rq  # noqa
         except ImportError:
-            raise ImproperlyConfigured('You must install django-rq to use'
-                                       ' imagekit.cachefiles.backends.RQ.')
+            raise ImproperlyConfigured(
+                "You must install django-rq to use" " imagekit.cachefiles.backends.RQ."
+            )
         super().__init__(*args, **kwargs)
 
     def schedule_generation(self, file, force=False):

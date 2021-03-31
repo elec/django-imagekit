@@ -11,9 +11,10 @@ from django.core.files import File
 from django.utils.encoding import force_bytes
 from pilkit.utils import *
 
-bad_memcached_key_chars = re.compile(r'[\u0000-\u001f\s]+')
+bad_memcached_key_chars = re.compile(r"[\u0000-\u001f\s]+")
 
 _autodiscovered = False
+
 
 def get_nonabstract_descendants(model):
     """ Returns all non-abstract descendants of the model. """
@@ -25,21 +26,22 @@ def get_nonabstract_descendants(model):
 
 def get_by_qname(path, desc):
     try:
-        dot = path.rindex('.')
+        dot = path.rindex(".")
     except ValueError:
         raise ImproperlyConfigured(f"{path} isn't a {desc} module.")
-    module, objname = path[:dot], path[dot + 1:]
+    module, objname = path[:dot], path[dot + 1 :]
     try:
         mod = import_module(module)
     except ImportError as e:
-        raise ImproperlyConfigured('Error importing %s module %s: "%s"' %
-                (desc, module, e))
+        raise ImproperlyConfigured(f'Error importing {desc} module {module}: "{e}"')
     try:
         obj = getattr(mod, objname)
         return obj
     except AttributeError:
-        raise ImproperlyConfigured('%s module "%s" does not define "%s"'
-                % (desc[0].upper() + desc[1:], module, objname))
+        raise ImproperlyConfigured(
+            '%s module "%s" does not define "%s"'
+            % (desc[0].upper() + desc[1:], module, objname)
+        )
 
 
 _singletons = {}
@@ -69,11 +71,11 @@ def autodiscover():
 
     from django.utils.module_loading import autodiscover_modules
 
-    autodiscover_modules('imagegenerators')
+    autodiscover_modules("imagegenerators")
     _autodiscovered = True
 
 
-def get_logger(logger_name='imagekit', add_null_handler=True):
+def get_logger(logger_name="imagekit", add_null_handler=True):
     logger = logging.getLogger(logger_name)
     if add_null_handler:
         logger.addHandler(NullHandler())
@@ -94,8 +96,8 @@ def get_field_info(field_file):
 
     """
     return (
-        getattr(field_file, 'instance', None),
-        getattr(getattr(field_file, 'field', None), 'attname', None),
+        getattr(field_file, "instance", None),
+        getattr(getattr(field_file, "field", None), "attname", None),
     )
 
 
@@ -116,7 +118,7 @@ def generate(generator):
 
 
 def call_strategy_method(file, method_name):
-    strategy = getattr(file, 'cachefile_strategy', None)
+    strategy = getattr(file, "cachefile_strategy", None)
     fn = getattr(strategy, method_name, None)
     if fn is not None:
         fn(file)
@@ -130,12 +132,14 @@ def get_cache():
 def sanitize_cache_key(key):
     if settings.IMAGEKIT_USE_MEMCACHED_SAFE_CACHE_KEY:
         # Memcached keys can't contain whitespace or control characters.
-        new_key = bad_memcached_key_chars.sub('', key)
+        new_key = bad_memcached_key_chars.sub("", key)
 
         # The also can't be > 250 chars long. Since we don't know what the
         # user's cache ``KEY_FUNCTION`` setting is like, we'll limit it to 200.
         if len(new_key) >= 200:
-            new_key = '{}:{}'.format(new_key[:200-33], md5(force_bytes(key)).hexdigest())
+            new_key = "{}:{}".format(
+                new_key[: 200 - 33], md5(force_bytes(key)).hexdigest()
+            )
 
         key = new_key
     return key

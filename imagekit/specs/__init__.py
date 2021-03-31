@@ -37,7 +37,9 @@ class BaseImageSpec:
     """
 
     def __init__(self):
-        self.cachefile_backend = self.cachefile_backend or get_default_cachefile_backend()
+        self.cachefile_backend = (
+            self.cachefile_backend or get_default_cachefile_backend()
+        )
         self.cachefile_strategy = load_strategy(self.cachefile_strategy)
 
     def generate(self):
@@ -93,16 +95,18 @@ class ImageSpec(BaseImageSpec):
     def cachefile_name(self):
         if not self.source:
             return None
-        fn = get_by_qname(settings.IMAGEKIT_SPEC_CACHEFILE_NAMER, 'namer')
+        fn = get_by_qname(settings.IMAGEKIT_SPEC_CACHEFILE_NAMER, "namer")
         return fn(self)
 
     @property
     def source(self):
-        src = getattr(self, '_source', None)
+        src = getattr(self, "_source", None)
         if not src:
-            field_data = getattr(self, '_field_data', None)
+            field_data = getattr(self, "_field_data", None)
             if field_data:
-                src = self._source = getattr(field_data['instance'], field_data['attname'])
+                src = self._source = getattr(
+                    field_data["instance"], field_data["attname"]
+                )
                 del self._field_data
         return src
 
@@ -123,27 +127,30 @@ class ImageSpec(BaseImageSpec):
         # yet, preventing us from accessing the source field.
         # (This is issue #234.)
         if isinstance(self.source, ImageFieldFile):
-            field = getattr(self.source, 'field')
-            state['_field_data'] = {
-                'instance': getattr(self.source, 'instance', None),
-                'attname': getattr(field, 'name', None),
+            field = getattr(self.source, "field")
+            state["_field_data"] = {
+                "instance": getattr(self.source, "instance", None),
+                "attname": getattr(field, "name", None),
             }
-            state.pop('_source', None)
+            state.pop("_source", None)
         return state
 
     def get_hash(self):
-        return hashers.pickle([
-            self.source.name,
-            self.processors,
-            self.format,
-            self.options,
-            self.autoconvert,
-        ])
+        return hashers.pickle(
+            [
+                self.source.name,
+                self.processors,
+                self.format,
+                self.options,
+                self.autoconvert,
+            ]
+        )
 
     def generate(self):
         if not self.source:
-            raise MissingSource("The spec '%s' has no source file associated"
-                                " with it." % self)
+            raise MissingSource(
+                "The spec '%s' has no source file associated" " with it." % self
+            )
 
         # TODO: Move into a generator base class
         # TODO: Factor out a generate_image function so you can create a generator and only override the PIL.Image creating part. (The tricky part is how to deal with original_format since generator base class won't have one.)
@@ -156,11 +163,13 @@ class ImageSpec(BaseImageSpec):
 
         try:
             img = open_image(self.source)
-            new_image = process_image(img,
-                                      processors=self.processors,
-                                      format=self.format,
-                                      autoconvert=self.autoconvert,
-                                      options=self.options)
+            new_image = process_image(
+                img,
+                processors=self.processors,
+                format=self.format,
+                autoconvert=self.autoconvert,
+                options=self.options,
+            )
         finally:
             if closed:
                 # We need to close the file if it was opened by us
@@ -169,7 +178,6 @@ class ImageSpec(BaseImageSpec):
 
 
 def create_spec_class(class_attrs):
-
     class DynamicSpecBase(ImageSpec):
         def __reduce__(self):
             try:
@@ -180,12 +188,14 @@ def create_spec_class(class_attrs):
                 state = getstate()
             return (create_spec, (class_attrs, state))
 
-    return type('DynamicSpec', (DynamicSpecBase,), class_attrs)
+    return type("DynamicSpec", (DynamicSpecBase,), class_attrs)
 
 
 def create_spec(class_attrs, state):
     cls = create_spec_class(class_attrs)
-    instance = cls.__new__(cls)  # Create an instance without calling the __init__ (which may have required args).
+    instance = cls.__new__(
+        cls
+    )  # Create an instance without calling the __init__ (which may have required args).
     try:
         setstate = instance.__setstate__
     except AttributeError:
@@ -201,14 +211,17 @@ class SpecHost:
     spec registry.
 
     """
+
     def __init__(self, spec=None, spec_id=None, **kwargs):
 
         spec_attrs = {k: v for k, v in list(kwargs.items()) if v is not None}
 
         if spec_attrs:
             if spec:
-                raise TypeError('You can provide either an image spec or'
-                    ' arguments for the ImageSpec constructor, but not both.')
+                raise TypeError(
+                    "You can provide either an image spec or"
+                    " arguments for the ImageSpec constructor, but not both."
+                )
             else:
                 spec = create_spec_class(spec_attrs)
 
@@ -247,6 +260,6 @@ class SpecHost:
         with the same id.
 
         """
-        if not getattr(self, 'spec_id', None):
-            raise Exception('Object %s has no spec id.' % self)
+        if not getattr(self, "spec_id", None):
+            raise Exception("Object %s has no spec id." % self)
         return generator_registry.get(self.spec_id, source=source)

@@ -11,13 +11,12 @@ from .utils import ImageSpecFileDescriptor
 
 class SpecHostField(SpecHost):
     def _set_spec_id(self, cls, name):
-        spec_id = getattr(self, 'spec_id', None)
+        spec_id = getattr(self, "spec_id", None)
 
         # Generate a spec_id to register the spec with. The default spec id is
         # "<app>:<model>_<field>"
         if not spec_id:
-            spec_id = ('{}:{}:{}'.format(cls._meta.app_label,
-                            cls._meta.object_name, name)).lower()
+            spec_id = (f"{cls._meta.app_label}:{cls._meta.object_name}:{name}").lower()
 
         # Register the spec with the id. This allows specs to be overridden
         # later, from outside of the model definition.
@@ -30,17 +29,33 @@ class ImageSpecField(SpecHostField):
     variants of uploaded images to your models.
 
     """
-    def __init__(self, processors=None, format=None, options=None,
-            source=None, cachefile_storage=None, autoconvert=None,
-            cachefile_backend=None, cachefile_strategy=None, spec=None,
-            id=None):
 
-        SpecHost.__init__(self, processors=processors, format=format,
-                options=options, cachefile_storage=cachefile_storage,
-                autoconvert=autoconvert,
-                cachefile_backend=cachefile_backend,
-                cachefile_strategy=cachefile_strategy, spec=spec,
-                spec_id=id)
+    def __init__(
+        self,
+        processors=None,
+        format=None,
+        options=None,
+        source=None,
+        cachefile_storage=None,
+        autoconvert=None,
+        cachefile_backend=None,
+        cachefile_strategy=None,
+        spec=None,
+        id=None,
+    ):
+
+        SpecHost.__init__(
+            self,
+            processors=processors,
+            format=format,
+            options=options,
+            cachefile_storage=cachefile_storage,
+            autoconvert=autoconvert,
+            cachefile_backend=cachefile_backend,
+            cachefile_strategy=cachefile_strategy,
+            spec=spec,
+            spec_id=id,
+        )
 
         # TODO: Allow callable for source. See https://github.com/matthewwithanm/django-imagekit/issues/158#issuecomment-10921664
         self.source = source
@@ -63,18 +78,22 @@ class ImageSpecField(SpecHostField):
             # But we need to do that after full model initialization
             def handle_model_preparation(sender, **kwargs):
 
-                image_fields = [f.attname for f in cls._meta.fields if
-                                isinstance(f, models.ImageField)]
+                image_fields = [
+                    f.attname
+                    for f in cls._meta.fields
+                    if isinstance(f, models.ImageField)
+                ]
                 if len(image_fields) == 0:
                     raise Exception(
-                        '%s does not define any ImageFields, so your %s'
-                        ' ImageSpecField has no image to act on.' %
-                        (cls.__name__, name))
+                        "%s does not define any ImageFields, so your %s"
+                        " ImageSpecField has no image to act on." % (cls.__name__, name)
+                    )
                 elif len(image_fields) > 1:
                     raise Exception(
-                        '%s defines multiple ImageFields, but you have not'
-                        ' specified a source for your %s ImageSpecField.' %
-                        (cls.__name__, name))
+                        "%s defines multiple ImageFields, but you have not"
+                        " specified a source for your %s ImageSpecField."
+                        % (cls.__name__, name)
+                    )
                 register_source_group(image_fields[0])
 
             class_prepared.connect(handle_model_preparation, sender=cls, weak=False)
@@ -88,11 +107,23 @@ class ProcessedImageField(models.ImageField, SpecHostField):
     within a reasonable size.
 
     """
+
     attr_class = ProcessedImageFieldFile
 
-    def __init__(self, processors=None, format=None, options=None,
-            verbose_name=None, name=None, width_field=None, height_field=None,
-            autoconvert=None, spec=None, spec_id=None, **kwargs):
+    def __init__(
+        self,
+        processors=None,
+        format=None,
+        options=None,
+        verbose_name=None,
+        name=None,
+        width_field=None,
+        height_field=None,
+        autoconvert=None,
+        spec=None,
+        spec_id=None,
+        **kwargs,
+    ):
         """
         The ProcessedImageField constructor accepts all of the arguments that
         the :class:`django.db.models.ImageField` constructor accepts, as well
@@ -104,11 +135,18 @@ class ProcessedImageField(models.ImageField, SpecHostField):
         if spec is None and autoconvert is None:
             autoconvert = True
 
-        SpecHost.__init__(self, processors=processors, format=format,
-                options=options, autoconvert=autoconvert, spec=spec,
-                spec_id=spec_id)
-        models.ImageField.__init__(self, verbose_name, name, width_field,
-                height_field, **kwargs)
+        SpecHost.__init__(
+            self,
+            processors=processors,
+            format=format,
+            options=options,
+            autoconvert=autoconvert,
+            spec=spec,
+            spec_id=spec_id,
+        )
+        models.ImageField.__init__(
+            self, verbose_name, name, width_field, height_field, **kwargs
+        )
 
     def contribute_to_class(self, cls, name):
         self._set_spec_id(cls, name)

@@ -4,16 +4,16 @@ from django.core.exceptions import ImproperlyConfigured
 
 
 class ImageKitConf(AppConf):
-    CACHEFILE_NAMER = 'imagekit.cachefiles.namers.hash'
-    SPEC_CACHEFILE_NAMER = 'imagekit.cachefiles.namers.source_name_as_path'
-    CACHEFILE_DIR = 'CACHE/images'
-    DEFAULT_CACHEFILE_BACKEND = 'imagekit.cachefiles.backends.Simple'
-    DEFAULT_CACHEFILE_STRATEGY = 'imagekit.cachefiles.strategies.JustInTime'
+    CACHEFILE_NAMER = "imagekit.cachefiles.namers.hash"
+    SPEC_CACHEFILE_NAMER = "imagekit.cachefiles.namers.source_name_as_path"
+    CACHEFILE_DIR = "CACHE/images"
+    DEFAULT_CACHEFILE_BACKEND = "imagekit.cachefiles.backends.Simple"
+    DEFAULT_CACHEFILE_STRATEGY = "imagekit.cachefiles.strategies.JustInTime"
 
     DEFAULT_FILE_STORAGE = None
 
     CACHE_BACKEND = None
-    CACHE_PREFIX = 'imagekit:'
+    CACHE_PREFIX = "imagekit:"
     CACHE_TIMEOUT = None
     CACHE_TIMEOUT_GENERATING = None
     USE_MEMCACHED_SAFE_CACHE_KEY = True
@@ -21,6 +21,7 @@ class ImageKitConf(AppConf):
     def configure_cache_backend(self, value):
         if value is None:
             from django.core.cache import DEFAULT_CACHE_ALIAS
+
             return DEFAULT_CACHE_ALIAS
 
         if value not in settings.CACHES:

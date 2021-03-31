@@ -13,6 +13,6 @@ def test_dont_access_source():
     """
     pmock = PropertyMock()
     pmock.__get__ = Mock()
-    with patch.object(Photo, 'original_image', pmock):
+    with patch.object(Photo, "original_image", pmock):
         photo = Photo()  # noqa
         assert_false(pmock.__get__.called)

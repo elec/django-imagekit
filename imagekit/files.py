@@ -24,8 +24,8 @@ class BaseIKFile(File):
 
     def _get_file(self):
         self._require_file()
-        if not hasattr(self, '_file') or self._file is None:
-            self._file = self.storage.open(self.name, 'rb')
+        if not hasattr(self, "_file") or self._file is None:
+            self._file = self.storage.open(self.name, "rb")
         return self._file
 
     def _set_file(self, file):
@@ -39,21 +39,24 @@ class BaseIKFile(File):
     def _get_path(self):
         self._require_file()
         return self.storage.path(self.name)
+
     path = property(_get_path)
 
     def _get_url(self):
         self._require_file()
         return self.storage.url(self.name)
+
     url = property(_get_url)
 
     def _get_size(self):
         self._require_file()
-        if not getattr(self, '_committed', False):
+        if not getattr(self, "_committed", False):
             return self.file.size
         return self.storage.size(self.name)
+
     size = property(_get_size)
 
-    def open(self, mode='rb'):
+    def open(self, mode="rb"):
         self._require_file()
         try:
             self.file.open(mode)
@@ -69,12 +72,13 @@ class BaseIKFile(File):
             raise
 
     def _get_closed(self):
-        file = getattr(self, '_file', None)
+        file = getattr(self, "_file", None)
         return file is None or file.closed
+
     closed = property(_get_closed)
 
     def close(self):
-        file = getattr(self, '_file', None)
+        file = getattr(self, "_file", None)
         if file is not None:
             file.close()
 
@@ -86,14 +90,15 @@ class IKContentFile(ContentFile):
     type hint.
 
     """
+
     def __init__(self, filename, content, format=None):
         self.file = ContentFile(content)
         self.file.name = filename
-        mimetype = getattr(self.file, 'content_type', None)
+        mimetype = getattr(self.file, "content_type", None)
         if format and not mimetype:
             mimetype = format_to_mimetype(format)
         if not mimetype:
-            ext = os.path.splitext(filename or '')[1]
+            ext = os.path.splitext(filename or "")[1]
             mimetype = extension_to_mimetype(ext)
         self.file.content_type = mimetype
 
@@ -102,4 +107,4 @@ class IKContentFile(ContentFile):
         return self.file.name
 
     def __str__(self):
-        return smart_str(self.file.name or '')
+        return smart_str(self.file.name or "")

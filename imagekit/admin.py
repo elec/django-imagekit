@@ -7,7 +7,8 @@ class AdminThumbnail:
     A convenience utility for adding thumbnails to Django's admin change list.
 
     """
-    short_description = _('Thumbnail')
+
+    short_description = _("Thumbnail")
     allow_tags = True
 
     def __init__(self, image_field, template=None):
@@ -27,14 +28,19 @@ class AdminThumbnail:
             try:
                 thumbnail = getattr(obj, self.image_field)
             except AttributeError:
-                raise Exception('The property %s is not defined on %s.' %
-                        (self.image_field, obj.__class__.__name__))
+                raise Exception(
+                    "The property %s is not defined on %s."
+                    % (self.image_field, obj.__class__.__name__)
+                )
 
-        original_image = getattr(thumbnail, 'source', None) or thumbnail
-        template = self.template or 'imagekit/admin/thumbnail.html'
+        original_image = getattr(thumbnail, "source", None) or thumbnail
+        template = self.template or "imagekit/admin/thumbnail.html"
 
-        return render_to_string(template, {
-            'model': obj,
-            'thumbnail': thumbnail,
-            'original_image': original_image,
-        })
+        return render_to_string(
+            template,
+            {
+                "model": obj,
+                "thumbnail": thumbnail,
+                "original_image": original_image,
+            },
+        )

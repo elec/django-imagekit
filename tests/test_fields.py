@@ -14,7 +14,7 @@ from .utils import get_image_file
 def test_model_processedimagefield():
     instance = ProcessedImageFieldModel()
     file = File(get_image_file())
-    instance.processed.save('whatever.jpeg', file)
+    instance.processed.save("whatever.jpeg", file)
     instance.save()
 
     eq_(instance.processed.width, 50)
@@ -24,7 +24,7 @@ def test_model_processedimagefield():
 def test_model_processedimagefield_with_spec():
     instance = ProcessedImageFieldWithSpecModel()
     file = File(get_image_file())
-    instance.processed.save('whatever.jpeg', file)
+    instance.processed.save("whatever.jpeg", file)
     instance.save()
 
     eq_(instance.processed.width, 100)
@@ -33,15 +33,18 @@ def test_model_processedimagefield_with_spec():
 
 def test_form_processedimagefield():
     class TestForm(forms.ModelForm):
-        image = ikforms.ProcessedImageField(spec_id='tests:testform_image',
-                processors=[SmartCrop(50, 50)], format='JPEG')
+        image = ikforms.ProcessedImageField(
+            spec_id="tests:testform_image",
+            processors=[SmartCrop(50, 50)],
+            format="JPEG",
+        )
 
         class Meta:
             model = ImageModel
-            fields = 'image',
+            fields = ("image",)
 
     upload_file = get_image_file()
-    file_dict = {'image': SimpleUploadedFile('abc.jpg', upload_file.read())}
+    file_dict = {"image": SimpleUploadedFile("abc.jpg", upload_file.read())}
     form = TestForm({}, file_dict)
     instance = form.save()
 
