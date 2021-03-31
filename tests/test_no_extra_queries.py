@@ -1,5 +1,7 @@
+from unittest.mock import Mock, PropertyMock, patch
+
 from nose.tools import assert_false
-from mock import Mock, PropertyMock, patch
+
 from .models import Photo
 
 

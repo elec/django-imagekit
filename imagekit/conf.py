@@ -24,7 +24,7 @@ class ImageKitConf(AppConf):
             return DEFAULT_CACHE_ALIAS
 
         if value not in settings.CACHES:
-            raise ImproperlyConfigured("{0} is not present in settings.CACHES".format(value))
+            raise ImproperlyConfigured(f"{value} is not present in settings.CACHES")
 
         return value
 

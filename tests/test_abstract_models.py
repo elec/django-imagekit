@@ -1,7 +1,8 @@
-from imagekit.utils import get_nonabstract_descendants
 from nose.tools import eq_
-from . models import (AbstractImageModel, ConcreteImageModel,
-                      ConcreteImageModelSubclass)
+
+from imagekit.utils import get_nonabstract_descendants
+
+from .models import AbstractImageModel, ConcreteImageModel, ConcreteImageModelSubclass
 
 
 def test_nonabstract_descendants_generator():

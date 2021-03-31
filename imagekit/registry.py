@@ -3,7 +3,7 @@ from .signals import content_required, existence_required, source_saved
 from .utils import autodiscover, call_strategy_method
 
 
-class GeneratorRegistry(object):
+class GeneratorRegistry:
     """
     An object for registering generators. This registry provides
     a convenient way for a distributable app to define default generators
@@ -44,7 +44,7 @@ class GeneratorRegistry(object):
 
     def get_ids(self):
         autodiscover()
-        return self._generators.keys()
+        return list(self._generators.keys())
 
     def content_required_receiver(self, sender, file, **kwargs):
         self._receive(file, 'on_content_required')
@@ -56,12 +56,12 @@ class GeneratorRegistry(object):
         generator = file.generator
 
         # FIXME: I guess this means you can't register functions?
-        if generator.__class__ in self._generators.values():
+        if generator.__class__ in list(self._generators.values()):
             # Only invoke the strategy method for registered generators.
             call_strategy_method(file, callback)
 
 
-class SourceGroupRegistry(object):
+class SourceGroupRegistry:
     """
     The source group registry is responsible for listening to source_* signals
     on source groups, and relaying them to the image generated file strategies
@@ -77,7 +77,7 @@ class SourceGroupRegistry(object):
 
     def __init__(self):
         self._source_groups = {}
-        for signal in self._signals.keys():
+        for signal in list(self._signals.keys()):
             signal.connect(self.source_group_receiver)
 
     def register(self, generator_id, source_group):
@@ -116,7 +116,7 @@ class SourceGroupRegistry(object):
             call_strategy_method(file, callback_name)
 
 
-class CacheFileRegistry(object):
+class CacheFileRegistry:
     """
     An object for registering generated files with image generators. The two are
     associated with each other via a string id. We do this (as opposed to
@@ -150,13 +150,12 @@ class CacheFileRegistry(object):
             pass
 
     def get(self, generator_id):
-        for k, v in self._cachefiles.items():
+        for k, v in list(self._cachefiles.items()):
             if generator_id in v:
-                for file in k():
-                    yield file
+                yield from k()
 
 
-class Register(object):
+class Register:
     """
     Register generators and generated files.
 
@@ -179,7 +178,7 @@ class Register(object):
         source_group_registry.register(generator_id, source_group)
 
 
-class Unregister(object):
+class Unregister:
     """
     Unregister generators and generated files.
 

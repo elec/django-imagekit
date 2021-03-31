@@ -1,14 +1,21 @@
-import mock
-from django.conf import settings
 from hashlib import md5
+from unittest import mock
+
+from django.conf import settings
+from django.utils.encoding import force_bytes
+from nose.tools import eq_, raises
+
 from imagekit.cachefiles import ImageCacheFile, LazyImageCacheFile
 from imagekit.cachefiles.backends import Simple
-from imagekit.lib import force_bytes
-from nose.tools import raises, eq_
+
 from .imagegenerators import TestSpec
-from .utils import (assert_file_is_truthy, assert_file_is_falsy,
-                    DummyAsyncCacheFileBackend, get_unique_image_file,
-                    get_image_file)
+from .utils import (
+    DummyAsyncCacheFileBackend,
+    assert_file_is_falsy,
+    assert_file_is_truthy,
+    get_image_file,
+    get_unique_image_file,
+)
 
 
 def test_no_source_falsiness():
@@ -81,7 +88,7 @@ def test_memcached_cache_key():
 
     """
 
-    class MockFile(object):
+    class MockFile:
         def __init__(self, name):
             self.name = name
 
@@ -97,10 +104,10 @@ def test_memcached_cache_key():
     length = 200 - extra_char_count
     filename = '1' * length
     file = MockFile(filename)
-    eq_(backend.get_key(file), '%s%s:%s' % (
+    eq_(backend.get_key(file), '{}{}:{}'.format(
         settings.IMAGEKIT_CACHE_PREFIX,
         '1' * (200 - len(':') - 32 - len(settings.IMAGEKIT_CACHE_PREFIX)),
-        md5(force_bytes('%s%s-state' % (settings.IMAGEKIT_CACHE_PREFIX, filename))).hexdigest()))
+        md5(force_bytes(f'{settings.IMAGEKIT_CACHE_PREFIX}{filename}-state')).hexdigest()))
 
 
 def test_lazyfile_stringification():

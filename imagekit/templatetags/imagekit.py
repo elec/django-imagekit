@@ -1,14 +1,11 @@
-from __future__ import unicode_literals
-
 from django import template
+from django.utils.encoding import force_str
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 
-from ..compat import parse_bits
 from ..cachefiles import ImageCacheFile
+from ..compat import parse_bits
 from ..registry import generator_registry
-from ..lib import force_text
-
 
 register = template.Library()
 
@@ -20,7 +17,7 @@ DEFAULT_THUMBNAIL_GENERATOR = 'imagekit:thumbnail'
 
 def get_cachefile(context, generator_id, generator_kwargs, source=None):
     generator_id = generator_id.resolve(context)
-    kwargs = dict((k, v.resolve(context)) for k, v in generator_kwargs.items())
+    kwargs = {k: v.resolve(context) for k, v in list(generator_kwargs.items())}
     generator = generator_registry.get(generator_id, **kwargs)
     return ImageCacheFile(generator)
 
@@ -44,7 +41,7 @@ class GenerateImageAssignmentNode(template.Node):
         self._variable_name = variable_name
 
     def get_variable_name(self, context):
-        return force_text(self._variable_name)
+        return force_str(self._variable_name)
 
     def render(self, context):
         variable_name = self.get_variable_name(context)
@@ -63,8 +60,8 @@ class GenerateImageTagNode(template.Node):
     def render(self, context):
         file = get_cachefile(context, self._generator_id,
                 self._generator_kwargs)
-        attrs = dict((k, v.resolve(context)) for k, v in
-                self._html_attrs.items())
+        attrs = {k: v.resolve(context) for k, v in
+                list(self._html_attrs.items())}
 
         # Only add width and height if neither is specified (to allow for
         # proportional in-browser scaling).
@@ -72,8 +69,8 @@ class GenerateImageTagNode(template.Node):
             attrs.update(width=file.width, height=file.height)
 
         attrs['src'] = file.url
-        attr_str = ' '.join('%s="%s"' % (escape(k), escape(v)) for k, v in
-                attrs.items())
+        attr_str = ' '.join('{}="{}"'.format(escape(k), escape(v)) for k, v in
+                list(attrs.items()))
         return mark_safe('<img %s />' % attr_str)
 
 
@@ -87,14 +84,14 @@ class ThumbnailAssignmentNode(template.Node):
         self._generator_kwargs = generator_kwargs
 
     def get_variable_name(self, context):
-        return force_text(self._variable_name)
+        return force_str(self._variable_name)
 
     def render(self, context):
         variable_name = self.get_variable_name(context)
 
         generator_id = self._generator_id.resolve(context) if self._generator_id else DEFAULT_THUMBNAIL_GENERATOR
-        kwargs = dict((k, v.resolve(context)) for k, v in
-                self._generator_kwargs.items())
+        kwargs = {k: v.resolve(context) for k, v in
+                list(self._generator_kwargs.items())}
         kwargs['source'] = self._source.resolve(context)
         kwargs.update(parse_dimensions(self._dimensions.resolve(context)))
         generator = generator_registry.get(generator_id, **kwargs)
@@ -116,16 +113,16 @@ class ThumbnailImageTagNode(template.Node):
     def render(self, context):
         generator_id = self._generator_id.resolve(context) if self._generator_id else DEFAULT_THUMBNAIL_GENERATOR
         dimensions = parse_dimensions(self._dimensions.resolve(context))
-        kwargs = dict((k, v.resolve(context)) for k, v in
-                self._generator_kwargs.items())
+        kwargs = {k: v.resolve(context) for k, v in
+                list(self._generator_kwargs.items())}
         kwargs['source'] = self._source.resolve(context)
         kwargs.update(dimensions)
         generator = generator_registry.get(generator_id, **kwargs)
 
         file = ImageCacheFile(generator)
 
-        attrs = dict((k, v.resolve(context)) for k, v in
-                self._html_attrs.items())
+        attrs = {k: v.resolve(context) for k, v in
+                list(self._html_attrs.items())}
 
         # Only add width and height if neither is specified (to allow for
         # proportional in-browser scaling).
@@ -133,8 +130,8 @@ class ThumbnailImageTagNode(template.Node):
             attrs.update(width=file.width, height=file.height)
 
         attrs['src'] = file.url
-        attr_str = ' '.join('%s="%s"' % (escape(k), escape(v)) for k, v in
-                attrs.items())
+        attr_str = ' '.join('{}="{}"'.format(escape(k), escape(v)) for k, v in
+                list(attrs.items()))
         return mark_safe('<img %s />' % attr_str)
 
 

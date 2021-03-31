@@ -1,14 +1,15 @@
 from django.template import TemplateSyntaxError
-from nose.tools import eq_, assert_false, raises, assert_not_equal
+from nose.tools import assert_false, assert_not_equal, eq_, raises
+
 from . import imagegenerators  # noqa
-from .utils import render_tag, get_html_attrs, clear_imagekit_cache
+from .utils import clear_imagekit_cache, get_html_attrs, render_tag
 
 
 def test_img_tag():
     ttag = r"""{% generateimage 'testspec' source=img %}"""
     clear_imagekit_cache()
     attrs = get_html_attrs(ttag)
-    expected_attrs = set(['src', 'width', 'height'])
+    expected_attrs = {'src', 'width', 'height'}
     eq_(set(attrs.keys()), expected_attrs)
     for k in expected_attrs:
         assert_not_equal(attrs[k].strip(), '')

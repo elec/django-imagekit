@@ -8,8 +8,8 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.settings'
 test_dir = os.path.dirname(__file__)
 sys.path.insert(0, test_dir)
 
-from django.test.utils import get_runner
 from django.conf import settings
+from django.test.utils import get_runner
 
 
 def run_tests():

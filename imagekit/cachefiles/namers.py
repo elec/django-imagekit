@@ -5,8 +5,10 @@ choices.
 
 """
 
-from django.conf import settings
 import os
+
+from django.conf import settings
+
 from ..utils import format_to_extension, suggest_extension
 
 
@@ -37,7 +39,7 @@ def source_name_as_path(generator):
 
     ext = suggest_extension(source_filename or '', generator.format)
     return os.path.normpath(os.path.join(dir,
-                                         '%s%s' % (generator.get_hash(), ext)))
+                                         f'{generator.get_hash()}{ext}'))
 
 
 def source_name_dot_hash(generator):
@@ -67,7 +69,7 @@ def source_name_dot_hash(generator):
 
     ext = suggest_extension(source_filename or '', generator.format)
     basename = os.path.basename(source_filename)
-    return os.path.normpath(os.path.join(dir, '%s.%s%s' % (
+    return os.path.normpath(os.path.join(dir, '{}.{}{}'.format(
             os.path.splitext(basename)[0], generator.get_hash()[:12], ext)))
 
 
@@ -88,4 +90,4 @@ def hash(generator):
     format = getattr(generator, 'format', None)
     ext = format_to_extension(format) if format else ''
     return os.path.normpath(os.path.join(settings.IMAGEKIT_CACHEFILE_DIR,
-                                         '%s%s' % (generator.get_hash(), ext)))
+                                         f'{generator.get_hash()}{ext}'))

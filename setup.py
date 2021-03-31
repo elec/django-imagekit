@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 import codecs
 import os
-from setuptools import setup, find_packages
 import sys
 
+from setuptools import find_packages, setup
 
 # Workaround for multiprocessing/nose issue. See http://bugs.python.org/msg170215
 try:
@@ -50,13 +50,11 @@ setup(
         'nose-progressive>=1.5.1',
         'django-nose>=1.4',
         'Pillow',
-        'mock>=1.0.1',
     ],
     test_suite='testrunner.run_tests',
     install_requires=[
         'django-appconf>=0.5',
         'pilkit>=0.2.0',
-        'six',
     ],
     extras_require={
         'async': ['django-celery>=3.0'],
@@ -69,12 +67,11 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
         'Topic :: Utilities'
     ],
 )

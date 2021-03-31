@@ -1,13 +1,13 @@
 from django import forms
 from django.core.files.base import File
 from django.core.files.uploadedfile import SimpleUploadedFile
+from nose.tools import eq_
+
 from imagekit import forms as ikforms
 from imagekit.processors import SmartCrop
-from nose.tools import eq_
+
 from . import imagegenerators  # noqa
-from .models import (ProcessedImageFieldModel,
-                     ProcessedImageFieldWithSpecModel,
-                     ImageModel)
+from .models import ImageModel, ProcessedImageFieldModel, ProcessedImageFieldWithSpecModel
 from .utils import get_image_file
 
 

@@ -1,13 +1,16 @@
-from nose.tools import assert_true, assert_false
-from imagekit.cachefiles import ImageCacheFile
-from mock import Mock
-from .utils import create_image
+from unittest.mock import Mock
+
 from django.core.files.storage import FileSystemStorage
+from nose.tools import assert_false, assert_true
+
+from imagekit.cachefiles import ImageCacheFile
 from imagekit.cachefiles.backends import Simple as SimpleCFBackend
 from imagekit.cachefiles.strategies import Optimistic as OptimisticStrategy
 
+from .utils import create_image
 
-class ImageGenerator(object):
+
+class ImageGenerator:
     def generate(self):
         return create_image()
 

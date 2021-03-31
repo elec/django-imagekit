@@ -1,8 +1,10 @@
 from django.core.files import File
+from nose.tools import eq_
+
 from imagekit.signals import source_saved
 from imagekit.specs.sourcegroups import ImageFieldSourceGroup
-from nose.tools import eq_
-from . models import AbstractImageModel, ImageModel, ConcreteImageModel
+
+from .models import AbstractImageModel, ConcreteImageModel, ImageModel
 from .utils import get_image_file
 
 
